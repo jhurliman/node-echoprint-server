@@ -32,16 +32,29 @@ var client = mysql.createClient({
 function fpQuery(fp, rows, callback) {
   var fpCodesStr = fp.codes.join(',');
   
+  var sql, args;
+  if (config.check_codever) {
+    sql = 'SELECT track_id,COUNT(track_id) AS score ' +
+      'FROM codes,tracks ' +
+      'WHERE code IN (' + fpCodesStr + ') ' +
+      'AND id=track_id ' +
+      'AND codever=?' +
+      'GROUP BY track_id ' +
+      'ORDER BY score DESC ' +
+      'LIMIT ' + rows;
+    args = [fp.codever];
+  } else {
+    sql = 'SELECT track_id,COUNT(track_id) AS score ' +
+      'FROM codes ' +
+      'WHERE code IN (' + fpCodesStr + ') ' +
+      'GROUP BY track_id ' +
+      'ORDER BY score DESC ' +
+      'LIMIT ' + rows;
+    args = [];
+  }
+  
   // Get the top N matching tracks sorted by score (number of matched codes)
-  var sql = 'SELECT track_id,COUNT(track_id) AS score ' +
-    'FROM codes,tracks ' +
-    'WHERE code IN (' + fpCodesStr + ') ' +
-    'AND id=track_id ' +
-    'AND codever=?' +
-    'GROUP BY track_id ' +
-    'ORDER BY score DESC ' +
-    'LIMIT ' + rows;
-  client.query(sql, [fp.codever], function(err, matches) {
+  client.query(sql, args, function(err, matches) {
     if (err) return callback(err, null);
     if (!matches) return callback(null, []);
     

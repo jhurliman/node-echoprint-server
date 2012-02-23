@@ -24,7 +24,11 @@ var settings = {
   
   // Minimum number of codes that must be matched to consider a fingerprint
   // match valid
-  code_threshold: 10
+  code_threshold: 10,
+  
+  // Set this to false to disable code version checking and speed up queries
+  // at the expense of safely supporting multiple codegen versions
+  check_codever: true
 };
 
 // Override default settings with any local settings
