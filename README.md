@@ -62,7 +62,7 @@ The /debug endpoint can be visited in a browser and provides a human-friendly
 way of querying for a match and observing results. Here is a screenshot of the 
 debug interface in action:
 
-![](http://github.com/jhurliman/node-echoprint-server/raw/master/docs/node-echoprint-debug01.png)
+![](https://github.com/jhurliman/node-echoprint-server/raw/master/docs/node-echoprint-debug01.png)
 
 ## Sponsors ##
 

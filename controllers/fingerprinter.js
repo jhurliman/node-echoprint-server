@@ -403,33 +403,33 @@ function ingest(fp, callback) {
         } else {
           createArtistAndTrack();
         }
+      }
+      
+      // Function for creating a new artist and new track
+      function createArtistAndTrack() {
+        var artistID = newArtistID();
+        log.info('Creating artist ' + artistID + ' ("' + fp.artist + '")');
         
-        // Function for creating a new artist and new track
-        var createArtistAndTrack = function() {
-          var artistID = newArtistID();
-          log.info('Creating artist ' + artistID + ' ("' + fp.artist + '")');
-          
-          database.addArtist(artistID, fp.artist, function(err) {
-            if (err) { gMutex.release(); return callback(err, null); }
-            createTrack(artistID, fp.artist);
-          });
-        };
+        database.addArtist(artistID, fp.artist, function(err) {
+          if (err) { gMutex.release(); return callback(err, null); }
+          createTrack(artistID, fp.artist);
+        });
+      }
+      
+      // Function for creating a new track given an artistID
+      function createTrack(artistID, artist) {
+        var trackID = newTrackID();
+        log.info('Creating track ' + trackID + ' ("' + fp.track + '")');
         
-        // Function for creating a new track given an artistID
-        var createTrack = function(artistID, artist) {
-          var trackID = newTrackID();
-          log.info('Creating track ' + trackID + ' ("' + fp.track + '")');
+        database.addTrack(trackID, artistID, fp, function(err) {
+          if (err) { gMutex.release(); return callback(err, null); }
           
-          database.addTrack(trackID, artistID, fp, function(err) {
-            if (err) { gMutex.release(); return callback(err, null); }
-            
-            // Success
-            log.info('Track insert complete');
-            gMutex.release();
-            callback(null, { track_id: trackID, track: fp.track,
-              artist_id: artistID, artist: artist });
-          });
-        };
+          // Success
+          log.info('Track insert complete');
+          gMutex.release();
+          callback(null, { track_id: trackID, track: fp.track,
+            artist_id: artistID, artist: artist });
+        });
       }
     });
   });
