@@ -1,0 +1,99 @@
+!!! 5
+html(lang="en")
+  head
+    title Echoprint Debug
+  body
+    h3 Echoprint Debug
+    
+    - if (typeof(err) !== 'undefined')
+      h4
+        font(color='red')= err
+    
+    form(action='/debug', method='POST')
+      span Paste the JSON output from echoprint-codegen
+      br
+      textarea(name='json', rows=10, cols=80)
+        - if (typeof(input) !== 'undefined')
+          | !{input}
+      br
+      input(type='submit', name='Lookup', value='Lookup')
+    
+    h2#status
+    table#matches(border=1)
+    
+    script(src='http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js')
+    - if (typeof(res) !== 'undefined')
+      script var res = !{res};
+    - else
+      script var res = null;
+    script
+      if (res) {
+        $('#status').text(res.status + ' - ' + res.queryTime + 'ms');
+        createMatchesTable();
+      }
+      
+      function createMatchesTable() {
+        if (!res.success) return;
+        
+        for (var i = 0; i < res.matches.length; i++) {
+          var match = res.matches[i];
+          var trackTD = $(document.createElement('td'));
+          trackTD.text(match.track_id);
+          
+          var graphsTD = $(document.createElement('td'));
+          $('<canvas/>', {
+            name: match.track_id + '-lines',
+            css: {
+              margin: '0',
+              background: '#ffffff',
+              border: '1px solid black',
+              width: '400px',
+              height: '25px'
+            }
+          }).appendTo(graphsTD);
+          
+          var tr = $(document.createElement('tr'));
+          tr.append(trackTD);
+          tr.append(graphsTD);
+          
+          $('#matches').append(tr);
+          
+          drawCodeMatchGraph(match);
+        }
+      }
+      
+      function drawCodeMatchGraph(match, graphsTD) {
+        var canvas = document.getElementsByName(match.track_id + '-lines')[0];
+        var ctx = canvas.getContext('2d');
+        
+        // Find the most frequently occurring time offset in the histogram
+        var topOffset = 0;
+        var topOffsetCount = 0;
+        for (var offset in match.histogram) {
+          if (match.histogram.hasOwnProperty(offset)) {
+            if (match.histogram[offset] > topOffsetCount) {
+              topOffsetCount = match.histogram[offset];
+              topOffset = parseInt(offset, 10);
+            }
+          }
+        }
+        
+        for (var i = 0; i < match.contributors.length; i++) {
+          var contrib = match.contributors[i];
+          var color = (contrib.dist == topOffset) ? 'blue' : 'red';
+          drawCodeMatch(ctx, canvas, contrib.time, match.codeLength, color);
+        }
+        
+        ctx.save();
+      }
+      
+      function drawCodeMatch(ctx, canvas, offset, duration, color) {
+        // Find the canvas offset
+        var x = (offset / duration) * canvas.width;
+        
+        ctx.strokeStyle = color;
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height)
+        ctx.stroke();
+      }

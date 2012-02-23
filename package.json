@@ -1,0 +1,9 @@
+{
+  "name": "echoprint-server",
+  "version": "0.1.0",
+  "dependencies": {
+    "mysql": "0.9.5",
+    "winston": "0.5.9",
+    "jade": "0.20.3"
+  }
+}
