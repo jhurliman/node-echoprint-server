@@ -35,14 +35,16 @@ Adds a new music fingerprint to the database if the given fingerprint is
 unique, otherwise the existing track information is returned.
 
 Required fields:
- * `code` - The code string output by echoprint-codegen
- * `version` - metadata.version field output by echoprint-codegen
- * `length` - Length in seconds of the track. duration field output by 
+
+* `code` - The code string output by echoprint-codegen
+* `version` - metadata.version field output by echoprint-codegen
+* `length` - Length in seconds of the track. duration field output by 
    echoprint-codegen
 
 Optional fields:
- * `track` - Name of the track
- * `artist` - Track artist
+
+* `track` - Name of the track
+* `artist` - Track artist
 
 The response is a JSON object containing `track_id`, `track`, `artist_id`, 
 `artist` on success or `error` string on failure.
