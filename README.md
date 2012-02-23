@@ -56,9 +56,11 @@ query parameters are both required. The response is a JSON object
 containing a `success` boolean, `status` string, `match` object on 
 successful match, or `error` string if something went wrong.
 
-Additionally, there is a /debug endpoint that can be visited in a browser and 
-provides a human-friendly way of querying for a match and observing results. 
-Here is a screenshot of the debug interface in action:
+### GET /debug
+
+The /debug endpoint can be visited in a browser and provides a human-friendly 
+way of querying for a match and observing results. Here is a screenshot of the 
+debug interface in action:
 
 ![](http://github.com/jhurliman/node-echoprint-server/raw/master/docs/node-echoprint-debug01.png)
 
