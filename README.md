@@ -29,28 +29,30 @@ database settings point to the MySQL database you just imported. Finally, run
 The server will listen on the port configured in `config.local.js` and exposes 
 two API endpoints.
 
- * POST /ingest - Expects required fields `code` (c), `version`, `length`
-   Adds a new music fingerprint to the database if the given fingerprint is 
-   unique, otherwise the existing track information is returned.
-   
-   Required fields:
-    * `code` - The code string output by echoprint-codegen
-    * `version` - metadata.version field output by echoprint-codegen
-    * `length` - Length in seconds of the track. duration field output by 
-      echoprint-codegen
-   
-   Optional fields:
-    * `track` - Name of the track
-    * `artist` - Track artist
-   
-   The response is a JSON object containing `track_id`, `track`, `artist_id`, 
-   `artist` on success or `error` string on failure.
+### POST /ingest
+
+Adds a new music fingerprint to the database if the given fingerprint is 
+unique, otherwise the existing track information is returned.
+
+Required fields:
+ * `code` - The code string output by echoprint-codegen
+ * `version` - metadata.version field output by echoprint-codegen
+ * `length` - Length in seconds of the track. duration field output by 
+   echoprint-codegen
+
+Optional fields:
+ * `track` - Name of the track
+ * `artist` - Track artist
+
+The response is a JSON object containing `track_id`, `track`, `artist_id`, 
+`artist` on success or `error` string on failure.
  
- * GET /query?code=...&version=...
-   Queries for a track matching the given fingerprint. `code` and `version` 
-   query parameters are both required. The response is a JSON object 
-   containing a `success` boolean, `status` string, `match` object on 
-   successful match, or `error` string if something went wrong.
+### GET /query?code=...&version=...
+
+Queries for a track matching the given fingerprint. `code` and `version` 
+query parameters are both required. The response is a JSON object 
+containing a `success` boolean, `status` string, `match` object on 
+successful match, or `error` string if something went wrong.
 
 Additionally, there is a /debug endpoint that can be visited in a browser and 
 provides a human-friendly way of querying for a match and observing results. 
