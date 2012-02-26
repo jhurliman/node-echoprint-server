@@ -14,7 +14,7 @@ exports.query = function(req, res) {
     return server.respond(req, res, 500, { error: 'Missing code' });
   
   var codeVer = url.query.version;
-  if (!codeVer || codeVer.length !== 4)
+  if (codeVer != config.codever)
     return server.respond(req, res, 500, { error: 'Missing or invalid version' });
   
   fingerprinter.decodeCodeString(code, function(err, fp) {
@@ -51,8 +51,11 @@ exports.ingest = function(req, res) {
   var length = req.body.length;
   var artist = req.body.artist;
   
-  if (!code || !codeVer || codeVer.length !== 4 || isNaN(parseInt(length, 10)))
+  if (!code || !codeVer || isNaN(parseInt(length, 10)))
     return server.respond(req, res, 500, { error: 'Missing or invalid required fields' });
+  
+  if (codeVer != config.codever)
+    return server.respond(req, res, 500, { error: 'Invalid version' });
   
   fingerprinter.decodeCodeString(code, function(err, fp) {
     if (err || !fp.codes.length) {

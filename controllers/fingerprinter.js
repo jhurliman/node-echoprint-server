@@ -1,4 +1,3 @@
-var spawn = require('child_process').spawn;
 var zlib = require('zlib');
 var log = require('winston');
 var Mutex = require('../mutex');
@@ -208,7 +207,6 @@ function getTrackMetadata(match, allMatches, status, callback) {
     if (!track)
       return callback('Track ' + match.track_id + ' went missing', null);
     
-    match.codever = track.codever;
     match.track = track.name;
     match.artist = track.artist_name;
     match.artist_id = track.artist_id;
@@ -305,8 +303,7 @@ function ingest(fp, callback) {
   var MAX_DURATION = 60 * 10;
   
   log.info('Ingesting track "' + fp.track + '" by artist "' + fp.artist +
-    '", ' + fp.length + ' seconds, ' + fp.codes.length + ' codes (v' +
-    fp.codever + ')');
+    '", ' + fp.length + ' seconds, ' + fp.codes.length + ' codes');
   
   if (!fp.codes.length || typeof fp.length !== 'number' || !fp.codever)
     return callback('Missing required track fields', null);
@@ -418,25 +415,22 @@ function ingest(fp, callback) {
       
       // Function for creating a new artist and new track
       function createArtistAndTrack() {
-        var artistID = newArtistID();
-        log.info('Creating artist ' + artistID + ' ("' + fp.artist + '")');
-        
-        database.addArtist(artistID, fp.artist, function(err) {
+        database.addArtist(fp.artist, function(err, artistID) {
           if (err) { gMutex.release(); return callback(err, null); }
+          
+          // Success
+          log.info('Created artist ' + artistID + ' ("' + fp.artist + '")');
           createTrack(artistID, fp.artist);
         });
       }
       
       // Function for creating a new track given an artistID
       function createTrack(artistID, artist) {
-        var trackID = newTrackID();
-        log.info('Creating track ' + trackID + ' ("' + fp.track + '")');
-        
-        database.addTrack(trackID, artistID, fp, function(err) {
+        database.addTrack(artistID, fp, function(err, trackID) {
           if (err) { gMutex.release(); return callback(err, null); }
           
           // Success
-          log.info('Track insert complete');
+          log.info('Created track ' + trackID + ' ("' + fp.track + '")');
           gMutex.release();
           callback(null, { track_id: trackID, track: fp.track,
             artist_id: artistID, artist: artist });
@@ -444,25 +438,4 @@ function ingest(fp, callback) {
       }
     });
   });
-}
-
-/**
- * Generates a 16-character track identifier.
- */
-function newTrackID() {
-  return 'TR' + newID();
-}
-
-/**
- * Generates a 16-character artist identifier.
- */
-function newArtistID() {
-  return 'AR' + newID();
-}
-
-function newID() {
-  var id = '';
-  for(var i = 0; i < 6; i++)
-    id += CHARACTERS.charAt(Math.floor(Math.random() * CHARACTERS.length));
-  return id + (gTimestamp++).toString(36).substr(-8).toUpperCase();
 }

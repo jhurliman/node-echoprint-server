@@ -26,9 +26,8 @@ var settings = {
   // match valid
   code_threshold: 10,
   
-  // Set this to false to disable code version checking and speed up queries
-  // at the expense of safely supporting multiple codegen versions
-  check_codever: true
+  // Supported version of echoprint-codegen codes
+  codever: '4.12'
 };
 
 // Override default settings with any local settings
