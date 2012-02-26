@@ -17,6 +17,7 @@ exports.decodeCodeString = decodeCodeString;
 exports.cutFPLength = cutFPLength;
 exports.getCodesToTimes = getCodesToTimes;
 exports.bestMatchForQuery = bestMatchForQuery;
+exports.getTrackMetadata = getTrackMetadata;
 exports.ingest = ingest;
 exports.SECONDS_TO_TIMESTAMP = SECONDS_TO_TIMESTAMP;
 exports.MATCH_SLOP = MATCH_SLOP;
@@ -138,9 +139,19 @@ function bestMatchForQuery(fp, threshold, callback) {
     
     // Compute more accurate scores for each track by taking time offsets into
     // account
+    var newMatches = [];
+    var newCount = 0;
     for (var i = 0; i < matches.length; i++) {
-      matches[i].ascore = getActualScore(fp, matches[i], threshold,
-        MATCH_SLOP);
+      var match = matches[i];
+      match.ascore = getActualScore(fp, match, threshold, MATCH_SLOP);
+      if (match.ascore)
+        newMatches[newCount++] = match;
+    }
+    matches = newMatches;
+    
+    if (!matches.length) {
+      log.debug('No matched tracks after score adjustment');
+      return callback(null, { status: 'NO_RESULTS_HISTOGRAM_DECREASED' });
     }
     
     // If we only had one track match, just use the threshold to determine if
@@ -148,8 +159,8 @@ function bestMatchForQuery(fp, threshold, callback) {
     if (matches.length === 1) {
       if (matches[0].ascore / fp.codes.length >= MIN_MATCH_PERCENT) {
         // Fetch metadata for the single match
-        return getTrackMetadata(matches[0], matches, 'SINGLE_GOOD_MATCH',
-          callback);
+        return getTrackMetadata(matches[0], matches,
+          'SINGLE_GOOD_MATCH_HISTOGRAM_DECREASED', callback);
       } else {
         log.debug('Single bad match with actual score ' + matches[0].ascore +
           '/' + fp.codes.length);
