@@ -83,6 +83,8 @@ exports.debugQuery = function(req, res) {
             renderView();
           }
         );
+      } else {
+        renderView();
       }
       
       function renderView() {

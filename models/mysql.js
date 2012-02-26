@@ -42,7 +42,7 @@ function fpQuery(fp, rows, callback) {
     'LIMIT ' + rows;
   client.query(sql, [], function(err, matches) {
     if (err) return callback(err, null);
-    if (!matches) return callback(null, []);
+    if (!matches || !matches.length) return callback(null, []);
     
     var trackIDs = new Array(matches.length);
     var trackIDMap = {};
