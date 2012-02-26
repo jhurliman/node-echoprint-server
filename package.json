@@ -4,6 +4,7 @@
   "dependencies": {
     "mysql": "0.9.5",
     "winston": "0.5.9",
-    "jade": "0.20.3"
+    "jade": "0.20.3",
+    "async": "0.1.16"
   }
 }

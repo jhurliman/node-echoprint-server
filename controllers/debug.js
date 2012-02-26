@@ -1,3 +1,4 @@
+var async = require('async');
 var urlParser = require('url');
 var log = require('winston');
 var fingerprinter = require('./fingerprinter');
@@ -51,20 +52,35 @@ exports.debugQuery = function(req, res) {
       // TODO: Determine a useful set of data to return about the query and
       // each match and return it in an HTML view
       if (allMatches) {
-        for (var i = 0; i < allMatches.length; i++) {
-          var match = allMatches[i];
-          match.codeLength = Math.ceil(match.length * fingerprinter.SECONDS_TO_TIMESTAMP);
-          // Find each match that contributed to ascore
-          getContributors(fp, match);
-          delete match.codes;
-          delete match.times;
-        }
+        async.forEach(allMatches,
+          function(match, done) {
+            fingerprinter.getTrackMetadata(match, null, null, function(err) {
+              match.codeLength = Math.ceil(match.length * fingerprinter.SECONDS_TO_TIMESTAMP);
+              // Find each match that contributed to ascore
+              getContributors(fp, match);
+              delete match.codes;
+              delete match.times;
+              
+              done(err);
+            });
+          },
+          function(err) {
+            if (err) {
+              return server.renderView(req, res, 500, 'debug.jade',
+                { err: 'Metadata lookup failed:' + err });
+            }
+            
+            renderView();
+          }
+        );
       }
       
-      var json = JSON.stringify({ success: !!result.success, status: result.status,
-        queryLen: fp.codes.length, matches: allMatches, queryTime: duration });
-      return server.renderView(req, res, 200, 'debug.jade', { res: json,
-        input: req.body.json });
+      function renderView() {
+        var json = JSON.stringify({ success: !!result.success, status: result.status,
+          queryLen: fp.codes.length, matches: allMatches, queryTime: duration });
+        return server.renderView(req, res, 200, 'debug.jade', { res: json,
+          input: req.body.json });
+      }
     });
   });
 };
