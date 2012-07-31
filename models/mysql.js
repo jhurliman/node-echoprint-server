@@ -5,6 +5,7 @@
 
 var fs = require('fs');
 var mysql = require('mysql');
+var temp = require('temp');
 var config = require('../config');
 
 exports.fpQuery = fpQuery;
@@ -174,7 +175,7 @@ function addTrack(trackID, artistID, fp, callback) {
     if (info.affectedRows !== 1) return callback('Track insert failed');
     
     // Write out the codes to a file for bulk insertion into MySQL
-    var tempName = '/tmp/echoprint-' + trackID;
+    var tempName = temp.path({ prefix: 'echoprint-' + trackID, suffix: '.csv' });
     writeCodesToFile(tempName, fp, trackID, function(err) {
       if (err) return callback(err);
       
@@ -182,10 +183,10 @@ function addTrack(trackID, artistID, fp, callback) {
       sql = 'LOAD DATA INFILE ? IGNORE INTO TABLE codes';
       client.query(sql, [tempName], function(err, info) {
         // Remove the temporary file
-        //fs.unlink(tempName, function(err2) {
-        //  if (!err) err = err2;
+        fs.unlink(tempName, function(err2) {
+          if (!err) err = err2;
           callback(err);
-        //});
+        });
       });
     });
   });
