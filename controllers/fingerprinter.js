@@ -308,7 +308,7 @@ function ingest(fp, callback) {
     '", ' + fp.length + ' seconds, ' + fp.codes.length + ' codes (v' +
     fp.codever + ')');
   
-  if (!fp.codes.length || !fp.length || !fp.codever)
+  if (!fp.codes.length || typeof fp.length !== 'number' || !fp.codever)
     return callback('Missing required track fields', null);
   
   fp = cutFPLength(fp, MAX_DURATION);

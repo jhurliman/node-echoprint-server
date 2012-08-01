@@ -12,9 +12,9 @@ exports.debugQuery = function(req, res) {
   if (!req.body || !req.body.json)
     return server.renderView(req, res, 200, 'debug.jade', {});
   
-  var code, codeVer;
+  var json, code, codeVer;
   try {
-    var json = JSON.parse(req.body.json)[0];
+    json = JSON.parse(req.body.json)[0];
     code = json.code;
     codeVer = json.metadata.version.toString();
   } catch (err) {
@@ -25,7 +25,17 @@ exports.debugQuery = function(req, res) {
     return server.renderView(req, res, 500, 'debug.jade',
       { err: 'Unrecognized input' });
   }
-  
+
+  if (req.body.Ingest) {
+    delete req.body.json;
+    req.body.code = code;
+    req.body.version = codeVer;
+    req.body.track = json.metadata.title;
+    req.body.length = json.metadata.duration;
+    req.body.artist = json.metadata.artist;
+    return require('./api').ingest(req, res);
+  }
+
   fingerprinter.decodeCodeString(code, function(err, fp) {
     if (err) {
       log.error('Failed to decode codes for debug query: ' + err);
