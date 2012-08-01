@@ -12,19 +12,6 @@ CREATE TABLE IF NOT EXISTS `artists` (
 
 -- --------------------------------------------------------
 --
--- Table structure for table `codes`
---
-
-CREATE TABLE IF NOT EXISTS `codes` (
-  `code` int(7) NOT NULL,
-  `time` int(7) NOT NULL,
-  `track_id` char(16) NOT NULL,
-  PRIMARY KEY (`code`,`time`,`track_id`),
-  FOREIGN KEY (`track_id`) REFERENCES `tracks`(`id`) ON DELETE CASCADE
-) DEFAULT CHARSET=utf8;
-
--- --------------------------------------------------------
---
 -- Table structure for table `tracks`
 --
 
@@ -37,4 +24,17 @@ CREATE TABLE IF NOT EXISTS `tracks` (
   `import_date` datetime NOT NULL,
   PRIMARY KEY (`id`,`codever`),
   FOREIGN KEY (`artist_id`) REFERENCES `artists`(`id`) ON DELETE CASCADE
+) DEFAULT CHARSET=utf8;
+
+-- --------------------------------------------------------
+--
+-- Table structure for table `codes`
+--
+
+CREATE TABLE IF NOT EXISTS `codes` (
+  `code` int(7) NOT NULL,
+  `time` int(7) NOT NULL,
+  `track_id` char(16) NOT NULL,
+  PRIMARY KEY (`code`,`time`,`track_id`),
+  FOREIGN KEY (`track_id`) REFERENCES `tracks`(`id`) ON DELETE CASCADE
 ) DEFAULT CHARSET=utf8;
