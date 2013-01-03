@@ -142,12 +142,8 @@ function addTrack(artistID, fp, callback) {
     length = parseInt(length, 10);
   
   // Sanity checks
-  if (!trackID || trackID.length !== 16 ||
-      !artistID || artistID.length !== 16 ||
-      isNaN(length))
-  {
+  if (!artistID || artistID.length !== 16 || isNaN(length))
     return callback('Attempted to add track with missing fields', null);
-  }
   
   var sql = 'INSERT INTO tracks ' +
     '(name,artist_id,length,import_date) ' +
