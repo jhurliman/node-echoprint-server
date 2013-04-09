@@ -230,7 +230,7 @@ function getCodesToTimes(match, slop) {
   
   for (var i = 0; i < match.codes.length; i++) {
     var code = match.codes[i];
-    var time = Math.floor(match.times[i] / slop);
+    var time = Math.floor(match.times[i] / slop) * slop;
     
     if (codesToTimes[code] === undefined)
       codesToTimes[code] = [];
@@ -258,23 +258,18 @@ function getActualScore(fp, match, threshold, slop) {
   // Iterate over each {code,time} tuple in the query
   for (i = 0; i < fp.codes.length; i++) {
     var code = fp.codes[i];
-    var time = Math.floor(fp.times[i] / slop);
+    var time = Math.floor(fp.times[i] / slop) * slop;
     var minDist = MAX_DIST;
-    
-    // Find the distance of the nearest instance of this code in the match
+
     var matchTimes = matchCodesToTimes[code];
     if (matchTimes) {
       for (j = 0; j < matchTimes.length; j++) {
         var dist = Math.abs(time - matchTimes[j]);
-        if (dist < minDist)
-          minDist = dist;
-      }
-    
-      if (minDist < MAX_DIST) {
+
         // Increment the histogram bucket for this distance
-        if (timeDiffs[minDist] === undefined)
-          timeDiffs[minDist] = 0;
-        timeDiffs[minDist]++;
+        if (timeDiffs[dist] === undefined)
+          timeDiffs[dist] = 0;
+        timeDiffs[dist]++;
       }
     }
   }

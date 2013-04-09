@@ -104,7 +104,7 @@ exports.debugQuery = function(req, res) {
  */
 function getContributors(fp, match) {
   var MAX_DIST = 32767;
-  var i, j;
+  var i, j, k;
   
   match.contributors = [];
   
@@ -115,7 +115,7 @@ function getContributors(fp, match) {
   var keys = Object.keys(match.histogram);
   var array = new Array(keys.length);
   for (i = 0; i < keys.length; i++)
-    array[i] = [ keys[i], match.histogram[keys[i]] ];
+    array[i] = [ parseInt(keys[i], 10), match.histogram[keys[i]] ];
   array.sort(function(a, b) { return b[1] - a[1]; });
   var topOffsets = array.splice(0, 2);
   
@@ -124,26 +124,20 @@ function getContributors(fp, match) {
   // Iterate over each {code,time} tuple in the query
   for (i = 0; i < fp.codes.length; i++) {
     var code = fp.codes[i];
-    var time = Math.floor(fp.times[i] / fingerprinter.MATCH_SLOP);
-    var minDist = MAX_DIST;
+    var time = Math.floor(fp.times[i] / fingerprinter.MATCH_SLOP) * fingerprinter.MATCH_SLOP;
     
-    // Find the distance of the nearest instance of this code in the match
     var matchTimes = matchCodesToTimes[code];
     if (matchTimes) {
       for (j = 0; j < matchTimes.length; j++) {
         var dist = Math.abs(time - matchTimes[j]);
-        if (dist < minDist)
-          minDist = dist;
-      }
-      
-      if (minDist < MAX_DIST) {
-        // If minDist is in topOffsets, add a contributor object
-        for (j = 0; j < topOffsets.length; j++) {
-          if (minDist === parseInt(topOffsets[j][0], 10)) {
+
+        // If dist is in topOffsets, add a contributor object
+        for (k = 0; k < topOffsets.length; k++) {
+          if (dist === topOffsets[k][0]) {
             match.contributors.push({
               code: code,
-              time: time,
-              dist: minDist
+              time: matchTimes[j],
+              dist: dist
             });
             break;
           }
