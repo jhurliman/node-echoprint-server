@@ -300,7 +300,7 @@ function getActualScore(fp, match, threshold, slop) {
  * artist_id, and artist name if available.
  */
 function ingest(fp, callback) {
-  var MAX_DURATION = 60 * 10;
+  var MAX_DURATION = 60 * 60 * 4;
   
   log.info('Ingesting track "' + fp.track + '" by artist "' + fp.artist +
     '", ' + fp.length + ' seconds, ' + fp.codes.length + ' codes');
