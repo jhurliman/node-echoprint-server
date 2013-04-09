@@ -158,6 +158,8 @@ function bestMatchForQuery(fp, threshold, callback) {
     if (matches.length === 1) {
       if (matches[0].ascore / fp.codes.length >= MIN_MATCH_PERCENT) {
         // Fetch metadata for the single match
+        log.debug('Single good match with actual score ' + matches[0].ascore +
+          '/' + fp.codes.length);
         return getTrackMetadata(matches[0], matches,
           'SINGLE_GOOD_MATCH_HISTOGRAM_DECREASED', callback);
       } else {
@@ -302,11 +304,13 @@ function getActualScore(fp, match, threshold, slop) {
 function ingest(fp, callback) {
   var MAX_DURATION = 60 * 60 * 4;
   
+  fp.codever = fp.codever || fp.version;
+
   log.info('Ingesting track "' + fp.track + '" by artist "' + fp.artist +
-    '", ' + fp.length + ' seconds, ' + fp.codes.length + ' codes');
+    '", ' + fp.length + ' seconds, ' + fp.codes.length + ' codes (' + fp.codever + ')');
   
-  if (!fp.codes.length || typeof fp.length !== 'number' || !fp.codever)
-    return callback('Missing required track fields', null);
+  if (!fp.codes.length || typeof fp.length !== 'number' || !fp.codever || !fp.track || !fp.artist)
+    return callback('Missing required fields', null);
   
   fp = cutFPLength(fp, MAX_DURATION);
   
@@ -326,7 +330,7 @@ function ingest(fp, callback) {
           match.artist + '"');
         
         var checkUpdateArtist = function() {
-          if (!match.artist && fp.artist) {
+          if (!match.artist) {
             // Existing artist is unnamed but we have a name now. Check if this
             // artist name already exists in the database
             log.debug('Updating track artist');
@@ -397,20 +401,15 @@ function ingest(fp, callback) {
         log.debug('Track does not exist in the database yet, status ' +
           res.status);
         
-        // Check if we were given an artist name
-        if (fp.artist) {
-          // Does this artist already exist in the database?
-          database.getArtistByName(fp.artist, function(err, artist) {
-            if (err) { gMutex.release(); return callback(err, null); }
-            
-            if (!artist)
-              createArtistAndTrack();
-            else
-              createTrack(artist.artist_id, artist.name);
-          });
-        } else {
-          createArtistAndTrack();
-        }
+        // Does this artist already exist in the database?
+        database.getArtistByName(fp.artist, function(err, artist) {
+          if (err) { gMutex.release(); return callback(err, null); }
+          
+          if (!artist)
+            createArtistAndTrack();
+          else
+            createTrack(artist.artist_id, artist.name);
+        });
       }
       
       // Function for creating a new artist and new track

@@ -142,13 +142,17 @@ function addTrack(artistID, fp, callback) {
     length = parseInt(length, 10);
   
   // Sanity checks
-  if (!artistID || artistID.length !== 16 || isNaN(length))
-    return callback('Attempted to add track with missing fields', null);
+  if (!artistID)
+    return callback('Attempted to add track with missing artistID', null);
+  if (isNaN(length) || !length)
+    return callback('Attempted to add track with invalid duration "' + length + '"', null);
+  if (!fp.codever)
+    return callback ('Attempted to add track with missing code version (codever field)', null);
   
   var sql = 'INSERT INTO tracks ' +
-    '(name,artist_id,length,import_date) ' +
-    'VALUES (?,?,?,?)';
-  client.query(sql, [fp.track, artistID, length, new Date()],
+    '(codever,name,artist_id,length,import_date) ' +
+    'VALUES (?,?,?,?,NOW())';
+  client.query(sql, [fp.codever, fp.track, artistID, length],
     function(err, info)
   {
     if (err) return callback(err, null);
@@ -156,8 +160,12 @@ function addTrack(artistID, fp, callback) {
     
     var trackID = info.insertId;
     
-    // Write out the codes to a file for bulk insertion into MySQL
     var tempName = temp.path({ prefix: 'echoprint-' + trackID, suffix: '.csv' });
+    // HACK: Work around permission problem with temporary paths on OSX
+    if (tempName.indexOf('/var/folders/') === 0)
+      tempName = '/tmp/' + require('path').basename(tempName);
+
+    // Write out the codes to a file for bulk insertion into MySQL
     writeCodesToFile(tempName, fp, trackID, function(err) {
       if (err) return callback(err, null);
       

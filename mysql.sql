@@ -4,7 +4,7 @@
 --
 
 CREATE TABLE IF NOT EXISTS `artists` (
-  `id` char(16) NOT NULL DEFAULT '',
+  `id` MEDIUMINT NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
@@ -16,10 +16,10 @@ CREATE TABLE IF NOT EXISTS `artists` (
 --
 
 CREATE TABLE IF NOT EXISTS `tracks` (
-  `id` char(16) NOT NULL,
+  `id` MEDIUMINT NOT NULL AUTO_INCREMENT,
   `codever` char(4) NOT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `artist_id` char(16) NOT NULL,
+  `artist_id` MEDIUMINT NOT NULL,
   `length` int(5) NOT NULL,
   `import_date` datetime NOT NULL,
   PRIMARY KEY (`id`,`codever`),
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `tracks` (
 CREATE TABLE IF NOT EXISTS `codes` (
   `code` int(7) NOT NULL,
   `time` int(7) NOT NULL,
-  `track_id` char(16) NOT NULL,
+  `track_id` MEDIUMINT NOT NULL,
   PRIMARY KEY (`code`,`time`,`track_id`),
   FOREIGN KEY (`track_id`) REFERENCES `tracks`(`id`) ON DELETE CASCADE
 ) DEFAULT CHARSET=utf8;
