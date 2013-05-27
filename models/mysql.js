@@ -170,7 +170,7 @@ function addTrack(artistID, fp, callback) {
       if (err) return callback(err, null);
       
       // Bulk insert the codes
-      sql = 'LOAD DATA INFILE ? IGNORE INTO TABLE codes';
+      sql = 'LOAD DATA LOCAL INFILE ? IGNORE INTO TABLE codes';
       client.query(sql, [tempName], function(err, info) {
         // Remove the temporary file
         fs.unlink(tempName, function(err2) {
