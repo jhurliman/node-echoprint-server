@@ -52,7 +52,9 @@ function init() {
     respond(req, res, 404, { error: 'Invalid API endpoint' });
   }).addListener('clientError', function(ex) {
     log.warn('Client error: ' + ex);
-  }).listen(config.web_port, "127.0.0.1");
+  }).listen(config.web_port);
+
+  log.info('HTTP listening on port ' + config.web_port);
 }
 
 /**
