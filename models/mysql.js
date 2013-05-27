@@ -161,12 +161,8 @@ function addTrack(artistID, fp, callback) {
     if (info.affectedRows !== 1) return callback('Track insert failed', null);
     
     var trackID = info.insertId;
-    
     var tempName = temp.path({ prefix: 'echoprint-' + trackID, suffix: '.csv' });
-    // HACK: Work around permission problem with temporary paths on OSX
-    if (tempName.indexOf('/var/folders/') === 0)
-      tempName = '/tmp/' + require('path').basename(tempName);
-
+    
     // Write out the codes to a file for bulk insertion into MySQL
     log.debug('Writing ' + fp.codes.length + ' codes to temporary file ' + tempName);
     writeCodesToFile(tempName, fp, trackID, function(err) {
