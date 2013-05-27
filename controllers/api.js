@@ -47,15 +47,22 @@ exports.query = function(req, res) {
 exports.ingest = function(req, res) {
   var code = req.body.code;
   var codeVer = req.body.version;
-  var track = req.body.track;
   var length = req.body.length;
+  var track = req.body.track;
   var artist = req.body.artist;
   
-  if (!code || !codeVer || isNaN(parseInt(length, 10)))
-    return server.respond(req, res, 500, { error: 'Missing or invalid required fields' });
-  
+  if (!code)
+    return server.respond(req, res, 500, { error: 'Missing "code" field' });
+  if (!codeVer)
+    return server.respond(req, res, 500, { error: 'Missing "version" field' });
   if (codeVer != config.codever)
-    return server.respond(req, res, 500, { error: 'Invalid version' });
+    return server.respond(req, res, 500, { error: 'Version "' + codeVer + '" does not match required version "' + config.codever + '"' });
+  if (isNaN(parseInt(length, 10))
+    return server.respond(req, res, 500, { error: 'Missing or invalid "length" field' });
+  if (!track)
+    return server.respond(req, res, 500, { error: 'Missing "track" field' });
+  if (!artist)
+    return server.respond(req, res, 500, { error: 'Missing "artist" field' });
   
   fingerprinter.decodeCodeString(code, function(err, fp) {
     if (err || !fp.codes.length) {
