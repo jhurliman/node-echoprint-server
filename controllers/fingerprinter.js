@@ -316,7 +316,7 @@ function ingest(fp, callback) {
     return callback('Missing or invalid "track" field', null);
   if (!fp.artist)
     return callback('Missing or invalid "artist" field', null);
-  
+
   fp = cutFPLength(fp, MAX_DURATION);
   
   // Acquire a lock while modifying the database
@@ -419,6 +419,7 @@ function ingest(fp, callback) {
       
       // Function for creating a new artist and new track
       function createArtistAndTrack() {
+        log.debug('Adding artist "' + fp.artist + '"')
         database.addArtist(fp.artist, function(err, artistID) {
           if (err) { gMutex.release(); return callback(err, null); }
           
@@ -430,6 +431,7 @@ function ingest(fp, callback) {
       
       // Function for creating a new track given an artistID
       function createTrack(artistID, artist) {
+        log.debug('Adding track "' + fp.track + '" for artist "' + artist  + '" (' + artistID + ')');
         database.addTrack(artistID, fp, function(err, trackID) {
           if (err) { gMutex.release(); return callback(err, null); }
           

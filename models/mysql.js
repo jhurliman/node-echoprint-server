@@ -6,6 +6,7 @@
 var fs = require('fs');
 var mysql = require('mysql');
 var temp = require('temp');
+var log = require('winston');
 var config = require('../config');
 
 exports.fpQuery = fpQuery;
@@ -20,12 +21,13 @@ exports.updateArtist = updateArtist;
 exports.disconnect = disconnect;
 
 // Initialize the MySQL connection
-var client = mysql.createClient({
+var client = mysql.createConnection({
   user: config.db_user,
   password: config.db_pass,
   database: config.db_database,
   host: config.db_host
 });
+client.connect();
 
 /**
  *
@@ -166,13 +168,16 @@ function addTrack(artistID, fp, callback) {
       tempName = '/tmp/' + require('path').basename(tempName);
 
     // Write out the codes to a file for bulk insertion into MySQL
+    log.debug('Writing ' + fp.codes.length + ' codes to temporary file ' + tempName);
     writeCodesToFile(tempName, fp, trackID, function(err) {
       if (err) return callback(err, null);
       
       // Bulk insert the codes
+      log.debug('Bulk inserting ' + fp.codes.length + ' codes for track ' + trackID);
       sql = 'LOAD DATA LOCAL INFILE ? IGNORE INTO TABLE codes';
       client.query(sql, [tempName], function(err, info) {
         // Remove the temporary file
+        log.debug('Removing temporary file ' + tempName);
         fs.unlink(tempName, function(err2) {
           if (!err) err = err2;
           callback(err, trackID);

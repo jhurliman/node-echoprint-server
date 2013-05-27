@@ -2,7 +2,7 @@
   "name": "echoprint-server",
   "version": "0.1.0",
   "dependencies": {
-    "mysql": "0.9.6",
+    "mysql": "2.0.0-alpha8",
     "winston": "0.6.2",
     "jade": "0.28.2",
     "async": "0.2.6",
