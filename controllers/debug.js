@@ -40,7 +40,7 @@ exports.debugQuery = function(req, res) {
     if (err) {
       log.error('Failed to decode codes for debug query: ' + err);
       return server.renderView(req, res, 500, 'debug.jade',
-        { err: 'Invalid code' });
+        { err: 'Failed to decode codes for debug query: ' + err });
     }
     
     fp.codever = codeVer;
@@ -52,7 +52,7 @@ exports.debugQuery = function(req, res) {
       if (err) {
         log.warn('Failed to complete debug query: ' + err);
         return server.renderView(req, res, 500, 'debug.jade',
-          { err: 'Lookup failed', input: req.body.json });
+          { err: 'Failed to complete debug query: ' + err, input: req.body.json });
       }
       
       var duration = new Date() - req.start;

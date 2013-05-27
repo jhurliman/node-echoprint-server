@@ -20,7 +20,7 @@ exports.query = function(req, res) {
   fingerprinter.decodeCodeString(code, function(err, fp) {
     if (err) {
       log.error('Failed to decode codes for query: ' + err);
-      return server.respond(req, res, 500, { error: 'Invalid code' });
+      return server.respond(req, res, 500, { error: 'Failed to decode codes for query: ' + err });
     }
     
     fp.codever = codeVer;
@@ -28,7 +28,7 @@ exports.query = function(req, res) {
     fingerprinter.bestMatchForQuery(fp, config.code_threshold, function(err, result) {
       if (err) {
         log.warn('Failed to complete query: ' + err);
-        return server.respond(req, res, 500, { error: 'Lookup failed' });
+        return server.respond(req, res, 500, { error: 'Failed to complete query: ' + err });
       }
       
       var duration = new Date() - req.start;
@@ -60,7 +60,7 @@ exports.ingest = function(req, res) {
   fingerprinter.decodeCodeString(code, function(err, fp) {
     if (err || !fp.codes.length) {
       log.error('Failed to decode codes for ingest: ' + err);
-      return server.respond(req, res, 500, { error: 'Invalid code' });
+      return server.respond(req, res, 500, { error: 'Failed to decode codes for ingest: ' + err });
     }
     
     fp.codever = codeVer;
@@ -71,7 +71,7 @@ exports.ingest = function(req, res) {
     fingerprinter.ingest(fp, function(err, result) {
       if (err) {
         log.error('Failed to ingest track: ' + err);
-        return server.respond(req, res, 500, { error: 'Ingestion failed' });
+        return server.respond(req, res, 500, { error: 'Failed to ingest track: ' + err });
       }
       
       var duration = new Date() - req.start;
