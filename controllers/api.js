@@ -72,7 +72,7 @@ exports.ingest = function(req, res) {
     
     fp.codever = codeVer;
     fp.track = track;
-    fp.length = length;
+    fp.length = parseInt(length, 10);
     fp.artist = artist;
     
     fingerprinter.ingest(fp, function(err, result) {
